@@ -1,6 +1,6 @@
 #include "NetTypes.hpp"
 
-namespace libanixart {
+namespace libnetwork {
 
     KeyValue::KeyValue(const std::string& key, const std::string& value) : key(key), value(value) {}
 

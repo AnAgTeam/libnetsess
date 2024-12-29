@@ -7,7 +7,7 @@
 #include <boost/json.hpp>
 #pragma warning(pop)
 
-namespace libanixart {
+namespace libnetwork {
 	class KeyValue {
 	public:
 		//template<typename T>

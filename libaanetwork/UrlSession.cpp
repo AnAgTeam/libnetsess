@@ -3,7 +3,7 @@
 #include <sstream>
 #include <curlpp/Options.hpp>
 
-namespace libanixart {
+namespace libnetwork {
 #if defined(_WIN32)
 	constexpr std::string_view UrlSession::COOKIEFILE_MEMORY = "NULL";
 #else

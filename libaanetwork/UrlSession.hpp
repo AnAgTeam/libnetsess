@@ -7,7 +7,7 @@
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
 
-namespace libanixart {
+namespace libnetwork {
 
 	class UrlSessionError : public std::exception {
 	public:
