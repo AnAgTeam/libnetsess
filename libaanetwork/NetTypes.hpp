@@ -51,6 +51,6 @@ namespace libnetwork {
 		return boost::json::value_to<std::string>(val);
 	}
 
-	extern JsonObject parse_json(const std::string& from);
+	extern JsonObject parse_json(std::string_view from);
 };
 

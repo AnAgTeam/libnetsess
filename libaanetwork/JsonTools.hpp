@@ -41,6 +41,11 @@ namespace libnetwork::json {
         std::same_as<std::remove_cvref_t<T>, Nullable<typename T::value_type>>;
 
     template<typename T>
+    concept smart_pointer =
+        std::same_as<std::remove_cvref_t<T>, std::shared_ptr<typename T::element_type>> ||
+        std::same_as<std::remove_cvref_t<T>, std::unique_ptr<typename T::element_type>>;
+
+    template<typename T>
     class Nullable {
     public:
         static_assert(std::is_same_v<std::remove_reference_t<T>, T>, "Don't use references with Nullable<T>");
@@ -234,11 +239,14 @@ namespace libnetwork::json {
             auto& json_arr = get<JsonArray&>(object, key);
             vec.reserve(json_arr.size());
             for (auto& value : json_arr) {
-                if constexpr (std::same_as<std::remove_cvref_t<T>, std::shared_ptr<typename T::element_type>>) {
-                    vec.push_back(std::move(std::make_shared<T>(value.as_object())));
+                if constexpr (smart_pointer<T>) {
+                    vec.emplace_back(new T::element_type(value.as_object()));
+                }
+                else if constexpr (requires { T(value.as_object()); }) { // has constructor from JsonObject
+                    vec.emplace_back(T(value.as_object()));
                 }
                 else {
-                    vec.emplace_back(value.as_object());
+                    vec.emplace_back(boost::json::value_to<T>(value));
                 }
             }
         }

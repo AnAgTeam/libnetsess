@@ -40,7 +40,7 @@ namespace libnetwork {
         return _params.empty();
     }
 
-    JsonObject parse_json(const std::string& from) {
+    JsonObject parse_json(std::string_view from) {
         return boost::json::parse(from).as_object();
     }
 };
