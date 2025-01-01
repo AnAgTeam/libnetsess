@@ -37,7 +37,7 @@ namespace libnetwork {
 	UrlSession::~UrlSession() {
 	}
 
-	void UrlSession::enable_redirects(const bool& value, const long& max) {
+	void UrlSession::enable_redirects(const bool value, const long max) {
 		_easy_handle.setOpt(cURLpp::Options::FollowLocation(value));
 		if (value) {
 			_easy_handle.setOpt(cURLpp::Options::MaxRedirs(max));
@@ -45,11 +45,11 @@ namespace libnetwork {
 
 	}
 
-	void UrlSession::set_verbose(const bool& value) {
+	void UrlSession::set_verbose(const bool value) {
 		_easy_handle.setOpt(curlpp::options::Verbose(value));
 	}
 
-	void UrlSession::set_timeout(const long& value) {
+	void UrlSession::set_timeout(const long value) {
 		_easy_handle.setOpt(curlpp::options::Timeout(value));
 	}
 
@@ -100,7 +100,7 @@ namespace libnetwork {
 		}
 	}
 
-	std::string UrlSession::post_request(const std::string& url, const std::string& data, const std::string_view& content_type, const std::vector<std::string>& extra_headers, const UrlParameters& params) const {
+	std::string UrlSession::post_request(const std::string& url, const std::string& data, std::string_view content_type, const std::vector<std::string>& extra_headers, const UrlParameters& params) const {
 		curlpp::Easy op_handle(_easy_handle.getCurlHandle().clone());
 		std::ostringstream stream;
 

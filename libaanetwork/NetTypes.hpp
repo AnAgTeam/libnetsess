@@ -10,8 +10,6 @@
 namespace libnetwork {
 	class KeyValue {
 	public:
-		//template<typename T>
-		//KeyValue(const std::string& key, const T& value) : key(key), value(std::to_string(value)) {}
 		KeyValue(const std::string& key, const std::string& value);
 
 		std::string key;
@@ -41,6 +39,7 @@ namespace libnetwork {
 
 	class UrlEncoded {
 	public:
+		/* not implemented */
 		static std::string encode(const std::vector<KeyValue>& from);
 	};
 

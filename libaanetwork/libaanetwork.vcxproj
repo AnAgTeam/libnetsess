@@ -19,11 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="JsonTools.cpp" />
     <ClCompile Include="NetTypes.cpp" />
+    <ClCompile Include="StringTools.cpp" />
+    <ClCompile Include="TimeTools.cpp" />
     <ClCompile Include="UrlSession.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="JsonTools.hpp" />
     <ClInclude Include="NetTypes.hpp" />
+    <ClInclude Include="StringTools.hpp" />
+    <ClInclude Include="TimeTools.hpp" />
     <ClInclude Include="UrlSession.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -126,6 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
