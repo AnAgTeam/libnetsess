@@ -9,7 +9,7 @@
 
 namespace libnetwork {
     template<typename T>
-    concept stringlike = std::same_as<std::remove_cv_t<T>, std::string> || std::same_as<std::remove_cv_t<T>, std::string_view>;
+    concept stringlike = std::same_as<std::remove_cvref_t<T>, std::string> || std::same_as<std::remove_cvref_t<T>, std::string_view>;
 
     class StringTools {
     public:

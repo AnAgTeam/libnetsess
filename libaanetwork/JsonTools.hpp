@@ -230,11 +230,16 @@ namespace libnetwork::json {
         }
 
         template<typename T>
-        static void assign_to_objects_array(JsonObject& object, const std::string_view& key, std::vector<std::shared_ptr<T>>& vec) {
+        static void assign_to_objects_array(JsonObject& object, const std::string_view& key, std::vector<T>& vec) {
             auto& json_arr = get<JsonArray&>(object, key);
             vec.reserve(json_arr.size());
             for (auto& value : json_arr) {
-                vec.push_back(std::make_shared<T>(value.as_object()));
+                if constexpr (std::same_as<std::remove_cvref_t<T>, std::shared_ptr<typename T::element_type>>) {
+                    vec.push_back(std::move(std::make_shared<T>(value.as_object())));
+                }
+                else {
+                    vec.emplace_back(value.as_object());
+                }
             }
         }
         template<typename T>
