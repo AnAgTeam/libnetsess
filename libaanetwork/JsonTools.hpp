@@ -38,7 +38,7 @@ namespace libnetwork::json {
 
     template<typename T>
     concept json_nullable =
-        std::same_as<std::remove_cvref_t<T>, Nullable<typename T::value_type>>;
+        std::same_as<std::remove_cvref_t<T>, Nullable<typename T::ValueType>>;
 
     template<typename T>
     concept smart_pointer =
@@ -48,13 +48,11 @@ namespace libnetwork::json {
     template<typename T>
     class Nullable {
     public:
-        static_assert(std::is_same_v<std::remove_reference_t<T>, T>, "Don't use references with Nullable<T>");
+        static_assert(!std::is_reference_v<T>, "Don't use references with Nullable<T>");
         static_assert(!json_nullable<T>, "Cannot derive Nullable<T> from Nullable<T>!");
-        typedef T value_type;
+        using ValueType = T;
 
-        Nullable() noexcept(std::is_nothrow_default_constructible_v<T>) : _is_null(true), _value(T()) {
-
-        }
+        Nullable() noexcept(std::is_nothrow_default_constructible_v<T>) : _is_null(true), _value() {}
         void set(const T& value) {
             _is_null = false;
             _value = value;
@@ -71,10 +69,12 @@ namespace libnetwork::json {
         }
 
         void operator=(const T& value) { set(value); }
+        auto operator<=>(const Nullable<T>& other) const = default;
     private:
         bool _is_null;
         T _value;
     };
+
     class InlineJson {
     public:
         static inline void open_object(std::string& json_str) {
@@ -82,6 +82,7 @@ namespace libnetwork::json {
         }
 
         static inline void close_object(std::string& json_str) {
+            assert(json_str.length() > 1);
             json_str[json_str.length() - 1] = '}';
         }
 
@@ -90,6 +91,7 @@ namespace libnetwork::json {
         }
 
         static inline void close_array(std::string& json_str) {
+            assert(json_str.length() > 1);
             json_str[json_str.length() - 1] = ']';
         }
 

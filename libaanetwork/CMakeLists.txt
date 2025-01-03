@@ -6,6 +6,7 @@ enable_language(CXX)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 set(INCLUDE_DIR /Users/toilettrauma/Desktop/myAppFrameworks/include)
+set(CURL_INCLUDE_DIR /Users/toilettrauma/Desktop/myAppFrameworks/curlpp/curl_include)
 
 # All following targets should search these directories for headers
 include_directories(
