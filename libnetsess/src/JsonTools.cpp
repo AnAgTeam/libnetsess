@@ -1,4 +1,4 @@
-#include "JsonTools.hpp"
+#include <netsess/JsonTools.hpp>
 
 namespace libnetwork::json {
     constexpr uint8_t power_of_2_digits_count[65] = {

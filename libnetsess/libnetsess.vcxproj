@@ -19,18 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="JsonTools.cpp" />
-    <ClCompile Include="NetTypes.cpp" />
-    <ClCompile Include="StringTools.cpp" />
-    <ClCompile Include="TimeTools.cpp" />
-    <ClCompile Include="UrlSession.cpp" />
+    <ClInclude Include="include\netsess\JsonTools.hpp" />
+    <ClInclude Include="include\netsess\NetTypes.hpp" />
+    <ClInclude Include="include\netsess\StringTools.hpp" />
+    <ClInclude Include="include\netsess\TimeTools.hpp" />
+    <ClInclude Include="include\netsess\UrlSession.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="JsonTools.hpp" />
-    <ClInclude Include="NetTypes.hpp" />
-    <ClInclude Include="StringTools.hpp" />
-    <ClInclude Include="TimeTools.hpp" />
-    <ClInclude Include="UrlSession.hpp" />
+    <ClCompile Include="src\JsonTools.cpp" />
+    <ClCompile Include="src\NetTypes.cpp" />
+    <ClCompile Include="src\StringTools.cpp" />
+    <ClCompile Include="src\TimeTools.cpp" />
+    <ClCompile Include="src\UrlSession.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -91,11 +91,11 @@
     <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib/debug/win_x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)/lib/release/win_x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

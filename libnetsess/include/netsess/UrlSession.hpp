@@ -1,5 +1,5 @@
 #pragma once
-#include "NetTypes.hpp"
+#include <netsess/NetTypes.hpp>
 
 #include <list>
 #include <vector>

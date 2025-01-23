@@ -1,4 +1,4 @@
-#include "NetTypes.hpp"
+#include <netsess/NetTypes.hpp>
 
 namespace libnetwork {
 

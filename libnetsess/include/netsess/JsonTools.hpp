@@ -1,6 +1,6 @@
 #pragma once
-#include "NetTypes.hpp"
-#include "TimeTools.hpp"
+#include <netsess/NetTypes.hpp>
+#include <netsess/TimeTools.hpp>
 
 #include <string>
 #include <vector>

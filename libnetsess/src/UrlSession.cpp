@@ -1,4 +1,4 @@
-#include "UrlSession.hpp"
+#include <netsess/UrlSession.hpp>
 
 #include <sstream>
 #include <curlpp/Options.hpp>
@@ -27,8 +27,8 @@ namespace libnetwork {
 		set_timeout(10);
 		set_cookie_file(std::string(COOKIEFILE_MEMORY));
 
-		_easy_handle.setOpt(curlpp::options::HttpVersion(CURL_HTTP_VERSION_1_1));
-		_easy_handle.setOpt(curlpp::options::Encoding(""));
+		//_easy_handle.setOpt(curlpp::options::HttpVersion(CURL_HTTP_VERSION_1_1));
+		//_easy_handle.setOpt(curlpp::options::Encoding(""));
 		_easy_handle.setOpt(curlpp::options::SslVerifyPeer(true));
 		_easy_handle.setOpt(curlpp::options::HttpHeader(_default_headers));
 		_easy_handle.setOpt(curlpp::options::SslVerifyPeer(true));
