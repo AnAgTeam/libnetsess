@@ -2,7 +2,7 @@
 #include <string>
 #include <chrono>
 
-namespace libnetwork {
+namespace network {
     class TimeTools {
     public:
         template<typename T>

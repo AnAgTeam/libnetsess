@@ -1,5 +1,5 @@
 #include <netsess/TimeTools.hpp>
 
-namespace libanixart {
+namespace network {
 
 };

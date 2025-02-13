@@ -8,11 +8,11 @@
 #include <map>
 #include <set>
 #include <chrono>
-
+#include <optional>
 #include <concepts>
 
 /* Idea from tgbot-cpp */
-namespace libnetwork::json {
+namespace network::json {
     using time_point = std::chrono::system_clock::time_point;
 
     template<typename T>
@@ -37,43 +37,13 @@ namespace libnetwork::json {
     concept enumeration = std::is_enum_v<T>;
 
     template<typename T>
-    concept json_nullable =
-        std::same_as<std::remove_cvref_t<T>, Nullable<typename T::ValueType>>;
+    concept nullable =
+        std::same_as<std::remove_cvref_t<T>, std::optional<typename T::value_type>>;
 
     template<typename T>
     concept smart_pointer =
         std::same_as<std::remove_cvref_t<T>, std::shared_ptr<typename T::element_type>> ||
         std::same_as<std::remove_cvref_t<T>, std::unique_ptr<typename T::element_type>>;
-
-    template<typename T>
-    class Nullable {
-    public:
-        static_assert(!std::is_reference_v<T>, "Don't use references with Nullable<T>");
-        static_assert(!json_nullable<T>, "Cannot derive Nullable<T> from Nullable<T>!");
-        using ValueType = T;
-
-        Nullable() noexcept(std::is_nothrow_default_constructible_v<T>) : _is_null(true), _value() {}
-        void set(const T& value) {
-            _is_null = false;
-            _value = value;
-        }
-        const T& get() const noexcept {
-            return _value;
-        }
-        void clear() noexcept(std::is_nothrow_default_constructible_v<T>) {
-            _is_null = true;
-            _value = T();
-        }
-        bool is_null() const noexcept {
-            return _is_null;
-        }
-
-        void operator=(const T& value) { set(value); }
-        auto operator<=>(const Nullable<T>& other) const = default;
-    private:
-        bool _is_null;
-        T _value;
-    };
 
     class InlineJson {
     public:
@@ -104,9 +74,6 @@ namespace libnetwork::json {
             else if constexpr (enumeration<TNoRef>) {
                 raw_append(json_str, static_cast<int32_t>(value));
             }
-            else if constexpr ((std::integral<TNoRef> || std::floating_point<TNoRef>) && requires { std::to_string(value); }) {
-                json_str += std::to_string(value);
-            }
             else if constexpr (requires { InlineJson::serialize(value); }) {
                 json_str += InlineJson::serialize(value);
             }
@@ -118,13 +85,16 @@ namespace libnetwork::json {
                 json_str += value;
                 json_str += '"';
             }
-            else if constexpr (json_nullable<TNoRef>) {
-                if (!value.is_null()) {
-                    raw_append(json_str, value.get());
+            else if constexpr (nullable<TNoRef>) {
+                if (value.has_value()) {
+                    raw_append(json_str, value.value());
                 }
                 else {
                     json_str += "null";
                 }
+            }
+            else if constexpr (requires { std::to_string(value); }) {
+                json_str += std::to_string(value);
             }
             else {
                 static_assert(!sizeof(T), "Cannot serialize T into JSON format!");
@@ -231,7 +201,8 @@ namespace libnetwork::json {
         static JsonArray& get_if(JsonObject& object, const std::string_view& key, PredicateFunc predicate) {
             return predicate(object, key) ? object[key].as_array() : NULL_ARRAY;
         }
-        template<typename T>
+        template<typename T> requires
+            std::constructible_from<T, JsonObject>
         static std::shared_ptr<T> object_get_if(JsonObject& object, const std::string_view& key, PredicateFunc predicate) {
             return predicate(object, key) ? std::make_shared<T>(object[key].as_object()) : nullptr;
         }
@@ -244,7 +215,7 @@ namespace libnetwork::json {
                 if constexpr (smart_pointer<T>) {
                     vec.emplace_back(new T::element_type(value.as_object()));
                 }
-                else if constexpr (requires { T(value.as_object()); }) { // has constructor from JsonObject
+                else if constexpr (std::constructible_from<T, JsonObject>) {
                     vec.emplace_back(T(value.as_object()));
                 }
                 else {

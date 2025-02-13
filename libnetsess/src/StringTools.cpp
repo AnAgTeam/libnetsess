@@ -2,7 +2,7 @@
 #include <random>
 
 
-namespace libnetwork {
+namespace network {
     constexpr std::string_view StringTools::ASCII = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890";
 
     std::string StringTools::gen_random_string(size_t length, std::string_view chars) {

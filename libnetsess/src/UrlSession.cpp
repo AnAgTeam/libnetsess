@@ -3,7 +3,7 @@
 #include <sstream>
 #include <curlpp/Options.hpp>
 
-namespace libnetwork {
+namespace network {
 #if defined(_WIN32)
 	constexpr std::string_view UrlSession::COOKIEFILE_MEMORY = "NULL";
 #else
@@ -19,7 +19,7 @@ namespace libnetwork {
 	}
 
 	void UrlSession::deinit() {
-
+		curlpp::terminate();
 	}
 
 	UrlSession::UrlSession() {
@@ -27,11 +27,8 @@ namespace libnetwork {
 		set_timeout(10);
 		set_cookie_file(std::string(COOKIEFILE_MEMORY));
 
-		//_easy_handle.setOpt(curlpp::options::HttpVersion(CURL_HTTP_VERSION_1_1));
-		//_easy_handle.setOpt(curlpp::options::Encoding(""));
 		_easy_handle.setOpt(curlpp::options::SslVerifyPeer(true));
 		_easy_handle.setOpt(curlpp::options::HttpHeader(_default_headers));
-		_easy_handle.setOpt(curlpp::options::SslVerifyPeer(true));
 	}
 
 	UrlSession::~UrlSession() {

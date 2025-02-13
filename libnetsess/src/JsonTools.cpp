@@ -1,6 +1,6 @@
 #include <netsess/JsonTools.hpp>
 
-namespace libnetwork::json {
+namespace network::json {
     constexpr uint8_t power_of_2_digits_count[65] = {
         20,
         19, 19, 19, 19,

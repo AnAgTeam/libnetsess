@@ -7,7 +7,7 @@
 #include <boost/json.hpp>
 #pragma warning(pop)
 
-namespace libnetwork {
+namespace network {
 	class KeyValue {
 	public:
 		KeyValue(const std::string& key, const std::string& value);

@@ -7,7 +7,7 @@
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
 
-namespace libnetwork {
+namespace network {
 	class UrlSessionError : public std::exception {
 	public:
 		const char* what() const noexcept override;

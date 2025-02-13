@@ -1,6 +1,6 @@
 #include <netsess/NetTypes.hpp>
 
-namespace libnetwork {
+namespace network {
 
     KeyValue::KeyValue(const std::string& key, const std::string& value) : key(key), value(value) {}
 
