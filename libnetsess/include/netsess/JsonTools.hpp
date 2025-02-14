@@ -66,25 +66,30 @@ namespace network::json {
         }
 
         template<typename T>
-        static void raw_append(std::string& json_str, std::remove_cvref_t<T>&& value) {
-            if constexpr (std::same_as<T, bool>) {
+        static void raw_append(std::string& json_str, T&& value) {
+            using std::to_string;
+            using Type = std::remove_cvref_t<T>;
+            if constexpr (std::same_as<Type, bool>) {
                 json_str += value ? "true" : "false";
             }
-            else if constexpr (enumeration<T>) {
+            else if constexpr (enumeration<Type>) {
                 raw_append(json_str, static_cast<int32_t>(value));
             }
-            else if constexpr (requires { InlineJson::serialize(std::forward<T>(value)); }) {
-                json_str += InlineJson::serialize(std::forward<T>(value));
+            else if constexpr (std::integral<Type> || std::floating_point<Type>) {
+                json_str += std::to_string(value);
             }
-            else if constexpr (clock_time_point<T> || clock_duration<T>) {
-                json_str += std::to_string(TimeTools::to_timestamp(std::forward<T>(value)));
+            else if constexpr (requires { InlineJson::serialize(value); }) {
+                json_str += InlineJson::serialize(value);
             }
-            else if constexpr (same_as_any_of<T, std::string, std::string_view, char*>) {
+            else if constexpr (clock_time_point<Type> || clock_duration<Type>) {
+                json_str += std::to_string(TimeTools::to_timestamp(value));
+            }
+            else if constexpr (same_as_any_of<Type, std::string, std::string_view, char*>) {
                 json_str += '"';
                 json_str += value;
                 json_str += '"';
             }
-            else if constexpr (nullable<T>) {
+            else if constexpr (nullable<Type>) {
                 if (value.has_value()) {
                     raw_append(json_str, value.value());
                 }
@@ -92,31 +97,33 @@ namespace network::json {
                     json_str += "null";
                 }
             }
-            else if constexpr (requires { std::to_string(value); }) {
-                json_str += std::to_string(value);
+            // Enables custom 'to_string' overloads
+            else if constexpr (requires { to_string(value); }) {
+                json_str += to_string(value);
             }
             else {
-                static_assert(!sizeof(T), "Cannot serialize T into JSON format!");
+                static_assert(!sizeof(Type), "Cannot serialize Type into JSON format!");
             }
         }
 
         template<typename T>
-        static void append(std::string& json_str, std::string_view key, std::remove_cvref_t<T>&& value) {
+        static void append(std::string& json_str, std::string_view key, T&& value) {
             json_str += '"';
             json_str += key;
             json_str += R"(":)";
+            raw_append(json_str, value);
+            json_str += ",";
+        }
+
+        template<typename T>
+        static void append(std::string& json_str, T&& value) {
             raw_append(json_str, std::forward<T>(value));
             json_str += ",";
         }
 
         template<typename T>
-        static void append(std::string& json_str, std::remove_cvref_t<T>&& value) {
-            raw_append(json_str, std::forward<T>(value));
-            json_str += ",";
-        }
-
-        template<serializable_to_json_array T>
-        static std::string serialize(std::remove_cvref_t<T>&& arr) {
+            requires serializable_to_json_array<std::remove_cvref_t<T>>
+        static std::string serialize(T&& arr) {
             if (arr.empty()) {
                 return "[]";
             }
@@ -129,8 +136,9 @@ namespace network::json {
             return json_str;
         }
 
-        template<serializable_to_json_object T>
-        static std::string serialize(std::remove_cvref_t<T>&& map) {
+        template<typename T>
+            requires serializable_to_json_object<std::remove_cvref_t<T>>
+        static std::string serialize(T&& map) {
             if (map.empty()) {
                 return "{}";
             }
@@ -193,11 +201,11 @@ namespace network::json {
         }
         template<clock_time_point T>
         static T get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
-            return predicate(object, key) ? TimeTools::from_timestamp(get<int64_t>(object, key)) : TimeTools::from_timestamp(0ULL);
+            return predicate(object, key) ? TimeTools::from_timestamp<T>(get<int64_t>(object, key)) : TimeTools::from_timestamp<T>(0ULL);
         }
         template<clock_duration T>
         static T get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
-            return predicate(object, key) ? TimeTools::from_timestamp(get<int64_t>(object, key)) : TimeTools::from_timestamp(0ULL);
+            return predicate(object, key) ? TimeTools::from_timestamp<T>(get<int64_t>(object, key)) : TimeTools::from_timestamp<T>(0ULL);
         }
         template<>
         static JsonObject& get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
@@ -254,7 +262,7 @@ namespace network::json {
         }
     };
 
-/* Not really usefull. Future improvement to pre-alloc json string */
+    /* Not really usefull. Future improvement to pre-alloc json string */
 #if 0
 
 #if defined(__GNUC__)
@@ -283,8 +291,8 @@ namespace network::json {
 
         template<typename T>
         static
-        std::enable_if_t<std::is_same_v<std::remove_reference_t<T>, T>, size_t>
-        get_arg_size(T&& arg) {
+            std::enable_if_t<std::is_same_v<std::remove_reference_t<T>, T>, size_t>
+            get_arg_size(T&& arg) {
             static_assert(false, "get_arg_size<T> not implemented!");
         }
         template<>
@@ -292,7 +300,7 @@ namespace network::json {
         template<>
         static size_t get_arg_size(std::string_view& arg) { return sizeof('"') + arg.size() + sizeof('"'); }
         template<size_t _Size>
-        static size_t get_arg_size(char(&&arg)[_Size]) { return _Size; }
+        static size_t get_arg_size(char(&& arg)[_Size]) { return _Size; }
         template<std::signed_integral T>
         static size_t get_arg_size(T&& arg) { return calc_approx_num_digits(static_cast<int64_t>(arg)); }
         template<std::unsigned_integral T>
