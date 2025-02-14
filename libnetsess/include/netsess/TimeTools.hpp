@@ -1,25 +1,34 @@
 #pragma once
 #include <string>
 #include <chrono>
+#include <concepts>
 
 namespace network {
+    template<typename T>
+    concept clock_time_point =
+        std::same_as<T, std::chrono::time_point<typename T::clock>>;
+    template<typename T>
+    concept clock_duration =
+        std::same_as<T, std::chrono::duration<typename T::rep, typename T::period>>;
+
     class TimeTools {
     public:
-        template<typename T>
-        static inline T from_timestamp_tp(int64_t timestamp) {
-            return T{ std::chrono::seconds(timestamp) };
+        template<clock_time_point T>
+        static int64_t to_timestamp(T&& time) {
+            return std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
         }
-        static inline std::chrono::system_clock::time_point from_timestamp(int64_t timestamp) {
-            return from_timestamp_tp<std::chrono::system_clock::time_point>(timestamp);
-        }
-
-        template<typename T>
-        static inline int64_t to_timestamp_tp(const std::chrono::system_clock::time_point& time) {
-            return std::chrono::duration_cast<T>(time.time_since_epoch()).count();
-        }
-        static inline int64_t to_timestamp(const std::chrono::system_clock::time_point& time) {
-            return to_timestamp_tp<std::chrono::seconds>(time);
+        template<clock_duration T>
+        static int64_t to_timestamp(T&& duration) {
+            return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
         }
 
+        template<clock_time_point T>
+        static T from_timestamp(int64_t&& time_seconds) {
+            return T{ std::chrono::seconds(time_seconds) };
+        }
+        template<clock_duration T>
+        static T from_timestamp(int64_t&& time_seconds) {
+            return std::chrono::system_clock::time_point{ std::chrono::seconds(time_seconds) }.time_since_epoch();
+        }
     };
 };
