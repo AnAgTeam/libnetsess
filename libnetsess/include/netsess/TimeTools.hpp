@@ -14,11 +14,11 @@ namespace network {
     class TimeTools {
     public:
         template<clock_time_point T>
-        static int64_t to_timestamp(T&& time) {
+        static int64_t to_timestamp(std::remove_cvref_t<T>&& time) {
             return std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
         }
         template<clock_duration T>
-        static int64_t to_timestamp(T&& duration) {
+        static int64_t to_timestamp(std::remove_cvref_t<T>&& duration) {
             return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
         }
 

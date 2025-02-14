@@ -66,26 +66,25 @@ namespace network::json {
         }
 
         template<typename T>
-        static void raw_append(std::string& json_str, T&& value) {
-            typedef std::remove_cvref_t<T> TNoRef;
-            if constexpr (std::same_as<TNoRef, bool>) {
+        static void raw_append(std::string& json_str, std::remove_cvref_t<T>&& value) {
+            if constexpr (std::same_as<T, bool>) {
                 json_str += value ? "true" : "false";
             }
-            else if constexpr (enumeration<TNoRef>) {
+            else if constexpr (enumeration<T>) {
                 raw_append(json_str, static_cast<int32_t>(value));
             }
-            else if constexpr (requires { InlineJson::serialize(value); }) {
-                json_str += InlineJson::serialize(value);
+            else if constexpr (requires { InlineJson::serialize(std::forward<T>(value)); }) {
+                json_str += InlineJson::serialize(std::forward<T>(value));
             }
-            else if constexpr (clock_time_point<TNoRef> || clock_duration<TNoRef>) {
+            else if constexpr (clock_time_point<T> || clock_duration<T>) {
                 json_str += std::to_string(TimeTools::to_timestamp(std::forward<T>(value)));
             }
-            else if constexpr (same_as_any_of<TNoRef, std::string, std::string_view, char*>) {
+            else if constexpr (same_as_any_of<T, std::string, std::string_view, char*>) {
                 json_str += '"';
                 json_str += value;
                 json_str += '"';
             }
-            else if constexpr (nullable<TNoRef>) {
+            else if constexpr (nullable<T>) {
                 if (value.has_value()) {
                     raw_append(json_str, value.value());
                 }
@@ -102,7 +101,7 @@ namespace network::json {
         }
 
         template<typename T>
-        static void append(std::string& json_str, std::string_view key, T&& value) {
+        static void append(std::string& json_str, std::string_view key, std::remove_cvref_t<T>&& value) {
             json_str += '"';
             json_str += key;
             json_str += R"(":)";
@@ -111,13 +110,13 @@ namespace network::json {
         }
 
         template<typename T>
-        static void append(std::string& json_str, T&& value) {
+        static void append(std::string& json_str, std::remove_cvref_t<T>&& value) {
             raw_append(json_str, std::forward<T>(value));
             json_str += ",";
         }
 
         template<serializable_to_json_array T>
-        static std::string serialize(T& arr) {
+        static std::string serialize(std::remove_cvref_t<T>&& arr) {
             if (arr.empty()) {
                 return "[]";
             }
@@ -131,7 +130,7 @@ namespace network::json {
         }
 
         template<serializable_to_json_object T>
-        static std::string serialize(T& map) {
+        static std::string serialize(std::remove_cvref_t<T>&& map) {
             if (map.empty()) {
                 return "{}";
             }
