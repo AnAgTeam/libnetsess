@@ -227,10 +227,10 @@ namespace network::json {
             auto& json_arr = get<JsonArray&>(object, key);
             vec.reserve(json_arr.size());
             for (auto& value : json_arr) {
-                if constexpr (smart_pointer<T>) {
+                if constexpr (smart_pointer<T> && requires{ std::constructible_from<typename T::element_type, JsonObject&>; }) {
                     vec.emplace_back(new T::element_type(value.as_object()));
                 }
-                else if constexpr (std::constructible_from<T, JsonObject>) {
+                else if constexpr (std::constructible_from<T, JsonObject&>) {
                     vec.emplace_back(T(value.as_object()));
                 }
                 else {
@@ -241,11 +241,7 @@ namespace network::json {
         template<typename T>
         static std::vector<std::shared_ptr<T>> get_objects_array(JsonObject& object, const std::string_view key) {
             std::vector<std::shared_ptr<T>> out;
-            auto& json_arr = get<JsonArray&>(object, key);
-            out.reserve(json_arr.size());
-            for (auto& value : json_arr) {
-                out.push_back(std::make_shared<T>(value.as_object()));
-            }
+            assign_to_objects_array(object, key, out);
             return out;
         }
 
