@@ -11,7 +11,6 @@
 #include <optional>
 #include <concepts>
 
-/* Idea from tgbot-cpp */
 namespace network::json {
     using Clock = std::chrono::system_clock;
 
@@ -82,7 +81,7 @@ namespace network::json {
                 json_str += InlineJson::serialize(value);
             }
             else if constexpr (clock_time_point<Type> || clock_duration<Type>) {
-                json_str += std::to_string(TimeTools::to_timestamp(value));
+                json_str += std::to_string(TimeTools::to_integer(value));
             }
             else if constexpr (same_as_any_of<Type, std::string, std::string_view, char*>) {
                 json_str += '"';
@@ -199,13 +198,15 @@ namespace network::json {
         static T get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
             return predicate(object, key) ? static_cast<T>(get<int32_t>(object, key)) : static_cast<T>(0);
         }
-        template<clock_time_point T>
+        template<typename T>
+            requires clock_time_point<std::remove_cvref_t<T>>
         static T get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
-            return predicate(object, key) ? TimeTools::from_timestamp<T>(get<int64_t>(object, key)) : TimeTools::from_timestamp<T>(0ULL);
+            return predicate(object, key) ? TimeTools::from_integer<T>(get<int64_t>(object, key)) : TimeTools::from_integer<T>(0ULL);
         }
-        template<clock_duration T>
+        template<typename T>
+            requires clock_duration<std::remove_cvref_t<T>>
         static T get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
-            return predicate(object, key) ? TimeTools::from_timestamp<T>(get<int64_t>(object, key)) : TimeTools::from_timestamp<T>(0ULL);
+            return predicate(object, key) ? TimeTools::from_integer<T>(get<int64_t>(object, key)) : TimeTools::from_integer<T>(0ULL);
         }
         template<>
         static JsonObject& get_if(JsonObject& object, const std::string_view key, PredicateFunc predicate) {
