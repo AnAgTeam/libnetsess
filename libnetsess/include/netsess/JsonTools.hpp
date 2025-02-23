@@ -164,13 +164,15 @@ namespace network::json {
         static T strong_get(JsonObject& object, const std::string_view key) {
             return boost::json::value_to<T>(object[key]);
         }
-        template<clock_time_point T>
+        template<typename T>
+            requires clock_time_point<std::remove_cvref_t<T>>
         static T strong_get(JsonObject& object, const std::string_view key) {
-            return TimeTools::from_timestamp(get<int64_t>(object, key));
+            return TimeTools::from_integer<T>(get<int64_t>(object, key));
         }
-        template<clock_duration T>
+        template<typename T>
+            requires clock_duration<std::remove_cvref_t<T>>
         static T strong_get(JsonObject& object, const std::string_view key) {
-            return TimeTools::from_timestamp(get<int64_t>(object, key));
+            return TimeTools::from_integer<T>(get<int64_t>(object, key));
         }
         template<>
         static JsonObject& strong_get(JsonObject& object, const std::string_view key) {
