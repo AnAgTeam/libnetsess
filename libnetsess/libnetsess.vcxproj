@@ -24,6 +24,7 @@
     <ClInclude Include="include\netsess\StringTools.hpp" />
     <ClInclude Include="include\netsess\TimeTools.hpp" />
     <ClInclude Include="include\netsess\UrlSession.hpp" />
+    <ClInclude Include="include\netsess\UtilConcepts.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\JsonTools.cpp" />

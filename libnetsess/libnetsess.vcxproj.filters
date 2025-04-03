@@ -24,6 +24,9 @@
     <ClInclude Include="include\netsess\UrlSession.hpp">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="include\netsess\UtilConcepts.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\StringTools.cpp">
