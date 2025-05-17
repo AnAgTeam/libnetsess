@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <exception>
-
+#include <curlpp/Form.hpp>
 #pragma warning(push, 0)
 #include <boost/json.hpp>
 #pragma warning(pop)
