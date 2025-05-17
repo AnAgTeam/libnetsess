@@ -52,5 +52,11 @@ namespace network {
 	}
 
 	extern JsonObject parse_json(std::string_view from);
+	
+	using MultipartPart = utilspp::clone_ptr<curlpp::FormPart>;
+	using MultipartFilePart = curlpp::FormParts::File;
+	using MultipartContentPart = curlpp::FormParts::Content;
+	/* This class must contain pointer and auto delete them */
+	using MultipartForms = curlpp::Forms;
 };
 
