@@ -1,4 +1,5 @@
 #include <netsess/UrlSession.hpp>
+#include <netsess/StringTools.hpp>
 
 #include <sstream>
 #include <curlpp/Options.hpp>
@@ -74,13 +75,9 @@ namespace network {
 		else {
 			op_handle.setOpt(curlpp::options::Url(url));
 		}
-		std::list<std::string> new_headers;
+
 		if (!extra_headers.empty()) {
-			new_headers = _default_headers;
-			for (auto& header : extra_headers) {
-				new_headers.push_back(header);
-			}
-			op_handle.setOpt(curlpp::options::HttpHeader(new_headers));
+			op_handle.setOpt(curlpp::options::HttpHeader(make_expanded_header(extra_headers)));
 		}
 
 		try {
@@ -111,13 +108,9 @@ namespace network {
 		op_handle.setOpt(curlpp::options::PostFields(data));
 		op_handle.setOpt(curlpp::options::PostFieldSizeLarge(data.length()));
 
-		std::list<std::string> new_headers = _default_headers;
-		std::string content_type_header = "Content-Type: ";
-		content_type_header += content_type;
-		content_type_header += "; Charset=utf-8";
-		new_headers.push_back(content_type_header);
-		for (auto& header : extra_headers) {
-			new_headers.push_back(header);
+		std::list<std::string> new_headers = make_expanded_header(extra_headers);
+		if (!content_type.empty()) {
+			new_headers.push_back(StringTools::sformat("Content-Type: %s; Charset=utf-8", content_type));
 		}
 		op_handle.setOpt(curlpp::options::HttpHeader(new_headers));
 
@@ -135,7 +128,7 @@ namespace network {
 		}
 	}
 
-	std::string UrlSession::post_multipart_request(const std::string& url, const MultipartForms& forms, const UrlParameters& params) const {
+	std::string UrlSession::post_multipart_request(const std::string& url, const MultipartForms& forms, const std::vector<std::string>& extra_headers, const UrlParameters& params) const {
 		curlpp::Easy op_handle(_easy_handle.getCurlHandle().clone());
 		std::ostringstream stream;
 
@@ -147,7 +140,10 @@ namespace network {
 			op_handle.setOpt(curlpp::options::Url(url));
 		}
 		op_handle.setOpt(curlpp::options::HttpPost(forms));
-		
+
+		if (!extra_headers.empty()) {
+			op_handle.setOpt(curlpp::options::HttpHeader(make_expanded_header(extra_headers)));
+		}
 
 		try {
 			op_handle.perform();
@@ -161,6 +157,14 @@ namespace network {
 			(e);
 			throw UrlSessionError();
 		}
+	}
+
+	std::list<std::string> UrlSession::make_expanded_header(const std::vector<std::string>& extra_headers) const {
+		std::list<std::string> new_headers = _default_headers;
+		for (auto& header : extra_headers) {
+			new_headers.push_back(header);
+		}
+		return new_headers;
 	}
 
 };
