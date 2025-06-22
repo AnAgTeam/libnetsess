@@ -65,8 +65,11 @@ namespace network::json {
                 case '"':
                     out_string += "\\\"";
                     break;
-                case '\'':
-                    out_string += "\\'";
+                case '\t':
+                    out_string += "\\t";
+                    break;
+                case '\r':
+                    out_string += "\\r";
                     break;
                 default:
                     out_string += ch;
@@ -78,7 +81,7 @@ namespace network::json {
 
         template<typename T>
         static void raw_append(std::string& json_str, T&& value) {
-            using Type = std::remove_cvref_t<T>;
+            using Type = std::decay_t<std::remove_cvref_t<T>>;
             if constexpr (std::same_as<Type, bool>) {
                 json_str += value ? "true" : "false";
             }
@@ -88,16 +91,16 @@ namespace network::json {
             else if constexpr (std::integral<Type> || std::floating_point<Type>) {
                 json_str += std::to_string(value);
             }
+            else if constexpr (same_as_any_of<Type, std::string, std::string_view, char*>) {
+                json_str += '"';
+                json_str += escape_string(value);
+                json_str += '"';
+            }
             else if constexpr (requires { InlineJson::serialize(value); }) {
                 json_str += InlineJson::serialize(value);
             }
             else if constexpr (convertible_time_tools_to_integer<Type>) {
                 json_str += std::to_string(TimeTools::to_integer(value));
-            }
-            else if constexpr (same_as_any_of<Type, std::string, std::string_view, char*>) {
-                json_str += '"';
-                json_str += escape_string(value);
-                json_str += '"';
             }
             else if constexpr (nullable<Type>) {
                 if (value.has_value()) {
